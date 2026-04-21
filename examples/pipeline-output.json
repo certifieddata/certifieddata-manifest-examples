@@ -1,0 +1,45 @@
+{
+  "manifest_version": "1.0",
+  "issued_at": "2026-04-21T14:32:10Z",
+  "issuer": {
+    "name": "Example Co — Content Ops",
+    "contact": "content-ops@example.com",
+    "environment": "prod"
+  },
+  "correlation_id": "publish-run-2026-04-21-17",
+  "artifacts": [
+    {
+      "artifact_type": "output",
+      "name": "summary-2026-04-21-region-emea",
+      "content_hash": "sha256:dd44ee55ff6677889900112233445566778899aabbccddeeff001122334455667",
+      "content_size_bytes": 18394,
+      "source_references": [
+        { "kind": "model", "id": "openai://gpt-4.1", "version": "2026-03" },
+        { "kind": "prompt", "id": "internal://prompts/exec-summary", "version": "9" },
+        { "kind": "retrieval_source", "id": "internal://kb/emea-q1-reports", "version": "2026-04-20" }
+      ],
+      "generation_metadata": {
+        "temperature": 0.2,
+        "max_tokens": 2048,
+        "retrieval_top_k": 8
+      },
+      "policy_context": {
+        "policy_id": "pol-exec-summary-publish-v3",
+        "approval_reference": "human-review:analyst-7721"
+      },
+      "issuance_notes": "Human-reviewed prior to publish. Policy gate required manual approval for EMEA region."
+    },
+    {
+      "artifact_type": "published-page",
+      "name": "https://example.com/reports/2026-04-21/emea-summary",
+      "content_hash": "sha256:ee55ff6677889900112233445566778899aabbccddeeff00112233445566778899",
+      "content_size_bytes": 43219,
+      "lineage": {
+        "upstream_artifacts": [
+          "sha256:dd44ee55ff6677889900112233445566778899aabbccddeeff001122334455667"
+        ]
+      },
+      "issuance_notes": "Certifies the rendered HTML page as published. Updating the page requires a new certificate."
+    }
+  ]
+}

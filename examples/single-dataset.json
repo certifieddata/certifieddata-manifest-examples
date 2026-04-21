@@ -1,0 +1,28 @@
+{
+  "manifest_version": "1.0",
+  "issued_at": "2026-04-21T14:32:10Z",
+  "issuer": {
+    "name": "Example Co — Data Platform",
+    "contact": "data-platform@example.com",
+    "environment": "prod"
+  },
+  "correlation_id": "ci-run-2026-04-21-01832",
+  "artifacts": [
+    {
+      "artifact_type": "dataset",
+      "name": "customer-churn-features-2026-Q2",
+      "content_hash": "sha256:1c4f6d7e8b3a0d91f6a7b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f607",
+      "content_size_bytes": 1423871,
+      "source_references": [
+        { "kind": "dataset", "id": "internal://warehouse/churn/v12", "version": "12" },
+        { "kind": "pipeline", "id": "dbt://churn_features", "version": "2026.04.18" }
+      ],
+      "generation_metadata": {
+        "pipeline": "dbt",
+        "project_version": "2026.04.18",
+        "run_id": "dbt-run-98811"
+      },
+      "issuance_notes": "Q2 refresh — replaces prior certificate for churn-features."
+    }
+  ]
+}

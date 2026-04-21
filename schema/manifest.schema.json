@@ -1,0 +1,113 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://certifieddata.io/schemas/manifest/v1.json",
+  "title": "CertifiedData Certification Manifest",
+  "description": "Structured batch intake for certifying artifacts, datasets, outputs, and publish events in a single submission.",
+  "type": "object",
+  "required": ["manifest_version", "issued_at", "artifacts"],
+  "additionalProperties": false,
+  "properties": {
+    "manifest_version": { "type": "string", "enum": ["1.0"] },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp — when the manifest was produced on the client side."
+    },
+    "issuer": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string", "maxLength": 200 },
+        "contact": { "type": "string", "maxLength": 200 },
+        "environment": { "type": "string", "enum": ["prod", "staging", "dev", "ci"] }
+      }
+    },
+    "correlation_id": {
+      "type": "string",
+      "maxLength": 120,
+      "description": "Client-side correlation key — typically a CI run ID or workflow ID."
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 200,
+      "items": { "$ref": "#/$defs/artifact" }
+    }
+  },
+  "$defs": {
+    "artifact": {
+      "type": "object",
+      "required": ["artifact_type", "content_hash"],
+      "additionalProperties": false,
+      "properties": {
+        "artifact_type": {
+          "type": "string",
+          "enum": ["dataset", "output", "published-page", "bundle", "model", "custom"]
+        },
+        "content_hash": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "description": "SHA-256 fingerprint of the artifact bytes, prefixed with `sha256:`."
+        },
+        "content_size_bytes": { "type": "integer", "minimum": 0 },
+        "name": { "type": "string", "maxLength": 200 },
+        "source_references": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["kind", "id"],
+            "additionalProperties": false,
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "model",
+                  "prompt",
+                  "dataset",
+                  "document",
+                  "retrieval_source",
+                  "pipeline",
+                  "other"
+                ]
+              },
+              "id": { "type": "string", "maxLength": 200 },
+              "version": { "type": "string", "maxLength": 60 },
+              "note": { "type": "string", "maxLength": 500 }
+            }
+          },
+          "maxItems": 50
+        },
+        "generation_metadata": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Algorithm, model version, parameters, pipeline config recorded at generation time."
+        },
+        "lineage": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "parent_certificates": {
+              "type": "array",
+              "items": { "type": "string", "maxLength": 120 },
+              "maxItems": 50
+            },
+            "upstream_artifacts": {
+              "type": "array",
+              "items": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$" },
+              "maxItems": 50
+            }
+          }
+        },
+        "policy_context": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "policy_id": { "type": "string", "maxLength": 120 },
+            "approval_reference": { "type": "string", "maxLength": 120 }
+          }
+        },
+        "issuance_notes": { "type": "string", "maxLength": 2000 }
+      }
+    }
+  }
+}

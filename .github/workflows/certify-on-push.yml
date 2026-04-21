@@ -1,0 +1,76 @@
+name: Certify release artifacts
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  certify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build release artifacts
+        id: build
+        run: |
+          mkdir -p dist
+          # replace with your real build step
+          echo "dummy release artifact" > dist/release.txt
+
+      - name: Compute SHA-256 hashes
+        id: hashes
+        run: |
+          hash=$(sha256sum dist/release.txt | awk '{print $1}')
+          echo "release_hash=sha256:$hash" >> "$GITHUB_OUTPUT"
+          echo "release_size=$(stat -c%s dist/release.txt)" >> "$GITHUB_OUTPUT"
+
+      - name: Build manifest
+        run: |
+          cat > manifest.json <<EOF
+          {
+            "manifest_version": "1.0",
+            "issued_at": "$(date -u +'%Y-%m-%dT%H:%M:%SZ')",
+            "issuer": {
+              "name": "${{ github.repository }}",
+              "environment": "ci"
+            },
+            "correlation_id": "${{ github.run_id }}",
+            "artifacts": [
+              {
+                "artifact_type": "bundle",
+                "name": "${{ github.ref_name }}",
+                "content_hash": "${{ steps.hashes.outputs.release_hash }}",
+                "content_size_bytes": ${{ steps.hashes.outputs.release_size }},
+                "source_references": [
+                  { "kind": "other", "id": "github://${{ github.repository }}@${{ github.sha }}" }
+                ],
+                "generation_metadata": {
+                  "ci": "github-actions",
+                  "run_id": "${{ github.run_id }}",
+                  "workflow": "${{ github.workflow }}"
+                }
+              }
+            ]
+          }
+          EOF
+          cat manifest.json
+
+      - name: Submit to CertifiedData
+        env:
+          CERTIFIEDDATA_API_KEY: ${{ secrets.CERTIFIEDDATA_API_KEY }}
+        run: |
+          curl -sS -X POST https://certifieddata.io/api/manifest/certify \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer $CERTIFIEDDATA_API_KEY" \
+            --data-binary @manifest.json \
+            --fail-with-body > certificates.json
+          cat certificates.json
+
+      - name: Upload certificate bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: certifieddata-certificates
+          path: certificates.json

@@ -1,0 +1,60 @@
+{
+  "manifest_version": "1.0",
+  "issued_at": "2026-04-21T14:32:10Z",
+  "issuer": {
+    "name": "Example Co — ML Platform",
+    "contact": "ml-platform@example.com",
+    "environment": "prod"
+  },
+  "correlation_id": "release-2026.04.21",
+  "artifacts": [
+    {
+      "artifact_type": "dataset",
+      "name": "training-fraud-v7",
+      "content_hash": "sha256:aa11bb22cc33dd44ee55ff6677889900112233445566778899aabbccddeeff00",
+      "content_size_bytes": 48172093,
+      "source_references": [
+        { "kind": "dataset", "id": "internal://warehouse/fraud/v6", "version": "6" }
+      ],
+      "generation_metadata": {
+        "algorithm": "CTGAN",
+        "epochs": 300,
+        "template_id": "fraud-detection",
+        "template_version": "1.2.0"
+      }
+    },
+    {
+      "artifact_type": "model",
+      "name": "fraud-classifier-v7",
+      "content_hash": "sha256:bb22cc33dd44ee55ff6677889900112233445566778899aabbccddeeff001122",
+      "content_size_bytes": 12459822,
+      "source_references": [
+        { "kind": "dataset", "id": "training-fraud-v7" },
+        { "kind": "prompt", "id": "n/a" }
+      ],
+      "generation_metadata": {
+        "framework": "xgboost",
+        "version": "2.0.3",
+        "hyperparams": { "max_depth": 8, "n_estimators": 500 }
+      },
+      "lineage": {
+        "upstream_artifacts": [
+          "sha256:aa11bb22cc33dd44ee55ff6677889900112233445566778899aabbccddeeff00"
+        ]
+      }
+    },
+    {
+      "artifact_type": "bundle",
+      "name": "fraud-release-2026.04.21",
+      "content_hash": "sha256:cc33dd44ee55ff6677889900112233445566778899aabbccddeeff0011223344",
+      "content_size_bytes": 60751293,
+      "lineage": {
+        "upstream_artifacts": [
+          "sha256:aa11bb22cc33dd44ee55ff6677889900112233445566778899aabbccddeeff00",
+          "sha256:bb22cc33dd44ee55ff6677889900112233445566778899aabbccddeeff001122"
+        ]
+      },
+      "issuance_notes": "Release bundle — dataset + model + inference harness."
+    }
+  ]
+}
